@@ -4,31 +4,32 @@
 #include <iostream>
 
 #ifndef M_PI
-#define M_PI 3.141592653589793
+#define M_PI 3.141592654f
 #endif  // !M_PI
 
 /* ========================= Methods of class Human ======================== */
 
 Human::Human(int InitX, int InitY, int InitHeadRadius, int InitBodyLen,
              int InitArmsLen, int InitLegsLen)
-    : Point(InitX, InitY) {
+    : Point(InitX, InitY), origin(InitX, InitY) {
   // Инициализируем человечка
   headRadius = InitHeadRadius;
 
   bodyLen = InitBodyLen;
 
   armsLen = InitArmsLen;
-  armsAngle = (M_PI / 180.0) * 30.0;
+  armsAngle = (M_PI / 180.0f) * 30.0f;
 
   legsLen = InitLegsLen;
-  legsAngle = (M_PI / 180.0) * 20.0;
+  legsAngle = (M_PI / 180.0f) * 20.0f;
 
   // Инициализируем все фигуры, задающие человечка
   update();
-  std::cout << "    Создан человек " << this << std::endl;
+  //std::cout << "    Создан человек " << this << std::endl;
 }
 
-Human::~Human() { std::cout << "    Удалён человек " << this << std::endl; }
+Human::~Human() { //std::cout << "    Удалён человек " << this << std::endl; 
+}
 
 void Human::Show(float R, float G, float B) {
   head.Show(R, G, B);

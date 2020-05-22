@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="Bonus">
+    <Position X="6.25" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAAAAAACAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>factory.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BigBonus">
+    <Position X="5" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAIAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>factory.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AvarageBonus">
+    <Position X="7.25" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAAAAAAAAAAAQAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>factory.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmallBonus">
+    <Position X="9.5" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAAAAAAAAAAAAAEEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>factory.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KillingBonus">
+    <Position X="2.75" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAAAAAAAACAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>factory.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Factory">
+    <Position X="11.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAABAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>factory.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BigBonusFactory">
+    <Position X="13" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>factory.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AvarageBonusFactory">
+    <Position X="15.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>factory.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmallBonusFactory">
+    <Position X="8.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>factory.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KillingBonusFactory">
+    <Position X="10.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>factory.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Human">
+    <Position X="0.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAoAAAACAAJAIEAAFAQQAMBAAAAAAAgAQEAQA=</HashCode>
+      <FileName>human.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Location">
+    <Position X="5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAYAAAIAAAAAAAAAAAAAYAAAAAAAYAA=</HashCode>
+      <FileName>shapes.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Point">
+    <Position X="5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAACAAAAAAAAAAAMAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>shapes.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Line" Collapsed="true">
+    <Position X="17.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAACABgAAAAggAAAAAAAAAAMAAAAAAIAoAABAAA=</HashCode>
+      <FileName>shapes.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Circle">
+    <Position X="6.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAgAAAAAAAAAAAAAAAgEAAAAAAAAgAiAAAA=</HashCode>
+      <FileName>shapes.hpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

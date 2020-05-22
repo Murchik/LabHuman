@@ -154,13 +154,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="factory.cpp" />
     <ClCompile Include="human.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shapes.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="factory.hpp" />
     <ClInclude Include="human.hpp" />
     <ClInclude Include="shapes.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

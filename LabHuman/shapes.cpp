@@ -14,10 +14,11 @@
 Location::Location(int InitX, int InitY) {
   X = InitX;
   Y = InitY;
-  std::cout << "Создана Location " << this << std::endl;
+  //std::cout << "Создана Location " << this << std::endl;
 }
 
-Location::~Location() { std::cout << "Удалена Location " << this << std::endl; }
+Location::~Location() { //std::cout << "Удалена Location " << this << std::endl; 
+}
 
 void Location::SetX(int NewX) { X = NewX; }
 
@@ -32,10 +33,11 @@ int Location::GetY() { return Y; }
 /* ======================== Methods of class Point ========================= */
 
 Point::Point(int InitX, int InitY) : Location(InitX, InitY) {
-  std::cout << " Создана Точка " << this << std::endl;
+  //std::cout << " Создана Точка " << this << std::endl;
 }
 
-Point::~Point() { std::cout << " Удалена Точка " << this << std::endl; }
+Point::~Point() { //std::cout << " Удалена Точка " << this << std::endl; 
+}
 
 void Point::Show(float R, float G, float B) {
   glBegin(GL_POINTS);  // Начинаем рисовать точки
@@ -55,10 +57,11 @@ void Point::MoveTo(int NewX, int NewY) {
 
 Line::Line(int startX, int startY, int endX, int endY)
     : start(startX, startY), end(endX, endY) {
-  std::cout << "   Создана линия " << this << std::endl;
+  //std::cout << "   Создана линия " << this << std::endl;
 }
 
-Line::~Line() { std::cout << "   Удалена линия " << this << std::endl; }
+Line::~Line() { //std::cout << "   Удалена линия " << this << std::endl; 
+}
 
 // Определение новых координат, для точки задающей начало линии
 void Line::SetStart(int startX, int startY) {
@@ -142,10 +145,10 @@ bool Line::intersects(Circle& circle) {
   double len = sqrt(pow(end.GetX() - start.GetX(), 2.0) +
                     pow(end.GetY() - start.GetY(), 2.0));
 
-  double NewStartX = start.GetX() - circle.GetX();
-  double NewStartY = start.GetY() - circle.GetY();
-  double NewEndX = end.GetX() - circle.GetX();
-  double NewEndY = end.GetY() - circle.GetY();
+  double NewStartX = (double)start.GetX() - circle.GetX();
+  double NewStartY = (double)start.GetY() - circle.GetY();
+  double NewEndX = (double)end.GetX() - circle.GetX();
+  double NewEndY = (double)end.GetY() - circle.GetY();
 
   double A = NewStartY - NewEndY;
   double B = NewEndX - NewStartX;
@@ -178,10 +181,11 @@ bool Line::intersects(Circle& circle) {
 
 Circle::Circle(int InitX, int InitY, int InitRadius) : Point(InitX, InitY) {
   radius = InitRadius;
-  std::cout << "   Создан круг " << this << std::endl;
+  //std::cout << "   Создан круг " << this << std::endl;
 }
 
-Circle::~Circle() { std::cout << "   Удалён круг " << this << std::endl; }
+Circle::~Circle() { //std::cout << "   Удалён круг " << this << std::endl; 
+}
 
 void Circle::SetRadius(int NewRadius) { radius = NewRadius; }
 
@@ -226,10 +230,10 @@ bool Circle::intersects(Line& line) {
   double len = sqrt(pow(line.GetEndX() - line.GetStartX(), 2.0) +
                     pow(line.GetEndY() - line.GetStartY(), 2.0));
 
-  double NewStartX = line.GetStartX() - X;
-  double NewStartY = line.GetStartY() - Y;
-  double NewEndX = line.GetEndX() - X;
-  double NewEndY = line.GetEndY() - Y;
+  double NewStartX = (double)line.GetStartX() - X;
+  double NewStartY = (double)line.GetStartY() - Y;
+  double NewEndX = (double)line.GetEndX() - X;
+  double NewEndY = (double)line.GetEndY() - Y;
 
   double A = NewStartY - NewEndY;
   double B = NewEndX - NewStartX;

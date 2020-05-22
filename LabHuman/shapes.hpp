@@ -22,26 +22,17 @@ class Location {
 
 };  // ====================== End of class Location ======================== //
 
-class Entity {
- public:
-  virtual bool intersects(Line &line) = 0;
-  virtual bool intersects(Circle &circle) = 0;
-  virtual ~Entity() = default;
-
-};  // ======================== END of class Entity ========================= //
-
 class Point : public Location {
  public:
   Point(int InitX = 0, int InitY = 0);
-  ~Point();
+  virtual ~Point();
 
   virtual void Show(float R = 1.0f, float G = 1.0f, float B = 1.0f);
-
   virtual void MoveTo(int NewX, int NewY);
 
 };  // ======================== End of class Point ========================= //
 
-class Line : public Entity {
+class Line {
  protected:
   Point start;
   Point end;
@@ -65,7 +56,7 @@ class Line : public Entity {
 
 };  // ======================== End of class Line ========================== //
 
-class Circle : public Point, public Entity {
+class Circle : public Point {
  protected:
   int radius;
 
@@ -76,7 +67,7 @@ class Circle : public Point, public Entity {
   void SetRadius(int NewRadius);
   int GetRadius();
 
-  void Show(float R = 1.0f, float G = 1.0f, float B = 1.0f) override;
+  virtual void Show(float R = 1.0f, float G = 1.0f, float B = 1.0f);
 
   bool intersects(Line &line);
   bool intersects(Circle &circle);

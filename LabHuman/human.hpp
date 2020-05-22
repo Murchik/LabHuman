@@ -7,8 +7,11 @@
 #include "shapes.hpp"
 #endif
 
-class Human : public Point, public Entity {
+class Human : public Point {
  private:
+  // Параметры человечка задающие:
+  float armsAngle;  // Угол под которым руки находятся по отношению к телу
+  float legsAngle;  // Угол под которым ноги находятся по отношению к телу
   // Определение фигур, задающих человечка
   Line body;
   Circle head;
@@ -17,17 +20,17 @@ class Human : public Point, public Entity {
   Line leftLeg;
   Line rightLeg;
 
+  // Точка создания человека
+  Point origin;
+
  protected:
-  // Параметры человечка задающие:
   int headRadius;  // Размер его головы
 
   int bodyLen;  // Длину тела
 
   int armsLen;       // Длину рук
-  double armsAngle;  // Угол под которым руки находятся по отношению к телу
 
   int legsLen;       // Длину ног
-  double legsAngle;  // Угол под которым ноги находятся по отношению к телу
 
  public:
   // Создаёт человечка с центром в заданных координатах, с заданными длиной рук
@@ -51,4 +54,4 @@ class Human : public Point, public Entity {
   bool intersects(Line &line);
 };
 
-#endif  // HUMAN_HPP
+#endif  // !HUMAN_HPP

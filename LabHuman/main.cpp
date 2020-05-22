@@ -4,7 +4,7 @@
  * Project Name  : LabHuman                                         *
  * Programmer(s) : Мурчиков М.Ю.                                    *
  * Created       : 28.03.2020                                       *
- * Last Revision : 06.05.2020                                       *
+ * Last Revision : 22.05.2020                                       *
  * Comment(s)    : Using builds tools for MCVS 2015                 *
  *                 (Platform Toolset = 'v140')                      *
  *                 Target platform version 8.1                      *
@@ -16,11 +16,15 @@
 // Больше информации: http://freeglut.sourceforge.net/
 #include <GL/freeglut.h>
 
-#include <iostream>
+#include <cstdlib>
+#include <ctime>
 #include <cmath>
+#include <iostream>
 #include <locale>
+#include <vector>
 
 // Заголовочный файл с определением фигулы "человечек"
+#include "factory.hpp"
 #include "human.hpp"
 
 // Определение константы числа "Пи" для случая, если используемая вами версия
@@ -33,14 +37,14 @@
 #define FPS 60
 
 // Определение длины и ширины окна для отрисовки фигур
-#define WINDOW_WIDTH  900
-#define WINDOW_HEIGHT 700
+#define WINDOW_WIDTH  1280
+#define WINDOW_HEIGHT 720
 
 // Определение координат для границ окна
-#define LEFT_BORDER    -WINDOW_WIDTH  / 2
-#define RIGHT_BORDER    WINDOW_WIDTH  / 2
-#define TOP_BORDER      WINDOW_HEIGHT / 2
-#define BOTTOM_BORDER  -WINDOW_HEIGHT / 2
+#define LEFT_BORDER   -WINDOW_WIDTH  / 2 + 50
+#define RIGHT_BORDER   WINDOW_WIDTH  / 2 - 50
+#define TOP_BORDER     WINDOW_HEIGHT / 2 - 50
+#define BOTTOM_BORDER -WINDOW_HEIGHT / 2 + 50
 
 // Массив для отслеживания состояния каждой кнопки
 bool keyDown[256];
@@ -77,10 +81,12 @@ int main(int argc, char** argv) {
   glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
   glutCreateWindow("Display window");
 
+  // Задание дисплей функции
   glutDisplayFunc(display);
   glutReshapeFunc(reshape);
   glutTimerFunc(1000, timer, 0);
 
+  // Задание callback функций для обработки нажатий клавиш 
   glutKeyboardFunc(handleKeyPress);
   glutKeyboardUpFunc(handleKeyUp);
   glutSpecialFunc(handleSpecialKeyPress);
@@ -90,6 +96,7 @@ int main(int argc, char** argv) {
   glClearColor(0.0, 0.0, 0.0, 1.0);
 
   setlocale(LC_ALL, "RUS");
+  std::srand(unsigned(std::time(0)));
 
   glutMainLoop();
 
@@ -98,44 +105,116 @@ int main(int argc, char** argv) {
 
 // ========================================================================= //
 
-// Дисплей-функция, отвечающая за рисование в окне
+// ============ Дисплей-функция, отвечающая за рисование в окне ============ //
+
 void display() {
   // Очищаем кадр
   glClear(GL_COLOR_BUFFER_BIT);
   glLoadIdentity();
 
   // Задание зоны внутри окна
-  static Line RightBorder(400, -300, 400, 300);
-  static Line LeftBorder(-400, -300, -400, 300);
-  static Line BottomBorder(-400, -300, 400, -300);
-  static Line TopBorder(-400, 300, 400, 300);
+  static Line RightBorder( RIGHT_BORDER, TOP_BORDER,
+                           RIGHT_BORDER, BOTTOM_BORDER);
+  static Line LeftBorder(  LEFT_BORDER,  TOP_BORDER, 
+                           LEFT_BORDER,  BOTTOM_BORDER);
+  static Line BottomBorder(LEFT_BORDER,  BOTTOM_BORDER,
+                           RIGHT_BORDER, BOTTOM_BORDER);
+  static Line TopBorder(   LEFT_BORDER,  TOP_BORDER,
+                           RIGHT_BORDER, TOP_BORDER);
 
-  // Неккоторый склон внутри активной зоны
-  static Line Slope(-400, -200, 200, -300);
+  // Вектор границ игровой зоны
+  static std::vector<Line*> borders = {&RightBorder,  &LeftBorder,
+                                       &BottomBorder, &TopBorder};
 
-  // Шар внутри активной зоны
-  static Circle ball(-200, 0, 100);
+  // Пораждающие классы
+  static BigBonusFactory*     bigBonusFactory     = new BigBonusFactory;
+  static AvarageBonusFactory* avarageBonusFactory = new AvarageBonusFactory;
+  static SmallBonusFactory*   smallBonusFactory   = new SmallBonusFactory;
+  static KillingBonusFactory* killingBonusFactory = new KillingBonusFactory;
 
-  // Создаём объект класса человечек
+  // Вектор шариков-бонусов
+  static std::vector<Bonus*> bonuses;
+
+  // Кол-во шариков бонусов на экране
+  static unsigned int BonusesNumber = 5;
+
+  // Фигура которой отображается игрок
   static Human human(100, 0);
-  // Создаём указатель на родительский класс и кладём туда
-  // объект класса человечек
-  static Point* pHuman = &human;
 
-  // Создаём указатель на интерфейсный класс и кладём туда
-  // объект класса человечек
-  static Entity* pHumanEntity = &human;
-
-  // Задание шага перемещения по экрану
+  // Задание шага (в пикселях) перемещения по экрану
   static int step = 5;
 
+  // Счёт
+  static int score = 0;
+
   // Обработка кодов нажатых клавиш
-  static bool movingUP = false;
-  static bool movingDOWN = false;
-  static bool movingLEFT = false;
+  static bool movingUP    = false;
+  static bool movingDOWN  = false;
+  static bool movingLEFT  = false;
   static bool movingRIGHT = false;
 
-  // Определяем куда должен двигатся человечек в зависимости от нажатых клавиш
+  // Если шариков-бонусов меньше заданного кол-ва, то создаём новый шарик
+  if (bonuses.size() < BonusesNumber) {
+    // Случайно выбираем один из четырёх видов бонусов
+    unsigned int random = std::rand() % (BonusesNumber - 1);
+    if (random == 0) {
+      bonuses.push_back(bigBonusFactory->createBonus());
+      bonuses[bonuses.size() - 1]->MoveTo(
+          std::rand() % (WINDOW_WIDTH - 100) - (WINDOW_WIDTH - 100) / 2,
+          std::rand() % (WINDOW_HEIGHT - 100) - (WINDOW_HEIGHT - 100) / 2);
+    } else if (random == 1) {
+      bonuses.push_back(avarageBonusFactory->createBonus());
+      bonuses[bonuses.size() - 1]->MoveTo(
+          std::rand() % (WINDOW_WIDTH - 100) - (WINDOW_WIDTH - 100) / 2,
+          std::rand() % (WINDOW_HEIGHT - 100) - (WINDOW_HEIGHT - 100) / 2);
+    } else if (random == 2) {
+      bonuses.push_back(smallBonusFactory->createBonus());
+      bonuses[bonuses.size() - 1]->MoveTo(
+          std::rand() % (WINDOW_WIDTH - 100) - (WINDOW_WIDTH - 100) / 2,
+          std::rand() % (WINDOW_HEIGHT - 100) - (WINDOW_HEIGHT - 100) / 2);
+    } else if (random == 3) {
+      bonuses.push_back(killingBonusFactory->createBonus());
+      bonuses[bonuses.size() - 1]->MoveTo(
+          std::rand() % (WINDOW_WIDTH - 100) - (WINDOW_WIDTH - 100) / 2,
+          std::rand() % (WINDOW_HEIGHT - 100) - (WINDOW_HEIGHT - 100) / 2);
+    }
+    // Если новый созданный шарик-бонус пересекает человечка, границы игровой
+    // зоны или какой либо из уже созданных бонусов, то удалить его и создать
+    // заного
+    if (human.intersects(*bonuses[bonuses.size() - 1])) {
+      delete bonuses[bonuses.size() - 1];
+      bonuses.erase(bonuses.begin() + bonuses.size() - 1);
+    } else if (borders[0]->intersects(*bonuses[bonuses.size() - 1])) {
+      delete bonuses[bonuses.size() - 1];
+      bonuses.erase(bonuses.begin() + bonuses.size() - 1);
+    } else if (borders[1]->intersects(*bonuses[bonuses.size() - 1])) {
+      delete bonuses[bonuses.size() - 1];
+      bonuses.erase(bonuses.begin() + bonuses.size() - 1);
+    } else if (borders[2]->intersects(*bonuses[bonuses.size() - 1])) {
+      delete bonuses[bonuses.size() - 1];
+      bonuses.erase(bonuses.begin() + bonuses.size() - 1);
+    } else if (borders[3]->intersects(*bonuses[bonuses.size() - 1])) {
+      delete bonuses[bonuses.size() - 1];
+      bonuses.erase(bonuses.begin() + bonuses.size() - 1);
+    } else {
+      for (int i = 0; i < bonuses.size() - 1; i++) {
+        if (bonuses[i]->intersects(*bonuses[bonuses.size() - 1])) {
+          delete bonuses[bonuses.size() - 1];
+          bonuses.erase(bonuses.begin() + bonuses.size() - 1);
+        }
+      }
+    }
+  }
+
+  // Удаление всех бонусов по нажатию клавиши "R" ("К" рус.)
+  if (keyDown[114] || keyDown[234]) {
+    for (int i = 0; i < bonuses.size(); i++) {
+      delete bonuses[i];
+      bonuses.erase(bonuses.begin() + i);
+    }
+  }
+
+  // Определяем куда двигать человечка в зависимости от нажатых клавиш
   if (keyDown[56] || keyDown[119] || keyDown[246]) {
     movingUP = true;
   } else {
@@ -157,84 +236,90 @@ void display() {
     movingRIGHT = false;
   }
 
-  // *** Проверяем пересечение человечка с объектами на экране  *** //
-  // *** через указатель на интерфейсный класс                  *** //
-  if (pHumanEntity->intersects(ball)) {
-    ball.Show(1.0f, 1.0, 0.0);  // Yellow
-  } else {
-    ball.Show();
+  // Двигаем человечка
+  // Движение вверх
+  if (movingUP) {
+    // std::cout << "circle movingUP" << std::endl;  // Эхо-печать
+    human.MoveTo(human.GetX(), human.GetY() + step);
   }
-  if (pHumanEntity->intersects(Slope)) {
-    Slope.Show(0.0f, 1.0, 0.0);  // Green
-    pHuman->MoveTo(pHuman->GetX(), pHuman->GetY() + step);
-  } else {
-    Slope.Show();
+  // Движение вниз
+  if (movingDOWN) {
+    // std::cout << "circle movingDOWN" << std::endl;  // Эхо-печать
+    human.MoveTo(human.GetX(), human.GetY() - step);
+  }
+  // Движение влево
+  if (movingLEFT) {
+    // std::cout << "circle movingLEFT" << std::endl;  // Эхо-печать
+    human.MoveTo(human.GetX() - step, human.GetY());
+  }
+  // Движение вправо
+  if (movingRIGHT) {
+    // std::cout << "circle movingRIGHT" << std::endl;  // Эхо-печать
+    human.MoveTo(human.GetX() + step, human.GetY());
   }
 
-  if (pHumanEntity->intersects(TopBorder)) {
+  // Проверка пересечения человечка с границами игровой зоны
+  if (human.intersects(TopBorder)) {
     movingUP = false;
-    pHuman->MoveTo(pHuman->GetX(), pHuman->GetY() - step);
+    human.MoveTo(human.GetX(), human.GetY() - step);
     TopBorder.Show(1.0f, 0.0, 0.0);  // Red
   } else {
     TopBorder.Show();
   }
-  if (pHumanEntity->intersects(BottomBorder)) {
+  if (human.intersects(BottomBorder)) {
     movingDOWN = false;
-    pHuman->MoveTo(pHuman->GetX(), pHuman->GetY() + step);
+    human.MoveTo(human.GetX(), human.GetY() + step);
     BottomBorder.Show(1.0f, 0.0, 0.0);  // Red
   } else {
     BottomBorder.Show();
   }
-  if (pHumanEntity->intersects(LeftBorder)) {
+  if (human.intersects(LeftBorder)) {
     movingLEFT = false;
-    pHuman->MoveTo(pHuman->GetX() + step, pHuman->GetY());
+    human.MoveTo(human.GetX() + step, human.GetY());
     LeftBorder.Show(1.0f, 0.0, 0.0);  // Red
   } else {
     LeftBorder.Show();
   }
-  if (pHumanEntity->intersects(RightBorder)) {
+  if (human.intersects(RightBorder)) {
     movingRIGHT = false;
-    pHuman->MoveTo(pHuman->GetX() - step, pHuman->GetY());
+    human.MoveTo(human.GetX() - step, human.GetY());
     RightBorder.Show(1.0f, 0.0, 0.0);  // Red
   } else {
     RightBorder.Show();
   }
 
-  // *** Двигаем человечка с помощью указателя на родительский класс *** //
-  // Движение вверх
-  if (movingUP) {
-    // std::cout << "circle movingUP" << std::endl;  // Эхо-печать
-    pHuman->MoveTo(pHuman->GetX(), pHuman->GetY() + step);
+  // Проверяем пересекается ли человечек с шариками-бонусов
+  for (size_t i = 0; i < bonuses.size(); i++) {
+    if(human.intersects(*bonuses[i])) {
+      // Если пересекает то увеличиваем счёт и удаляем шарик-бонус
+      score += bonuses[i]->GetValue();
+      std::cout << "New score = " << score << std::endl;
+      delete bonuses[i];
+      bonuses.erase(bonuses.begin() + i);
+    }
   }
-  // Движение вниз
-  if (movingDOWN) {
-    // std::cout << "circle movingDOWN" << std::endl;  // Эхо-печать
-    pHuman->MoveTo(pHuman->GetX(), pHuman->GetY() - step);
-  }
-  // Движение влево
-  if (movingLEFT) {
-    // std::cout << "circle movingLEFT" << std::endl;  // Эхо-печать
-    pHuman->MoveTo(pHuman->GetX() - step, pHuman->GetY());
-  }
-  // Движение вправо
-  if (movingRIGHT) {
-    // std::cout << "circle movingRIGHT" << std::endl;  // Эхо-печать
-    pHuman->MoveTo(pHuman->GetX() + step, pHuman->GetY());
+
+  // Отрисовываем шарики
+  for (size_t i = 0; i < bonuses.size(); i++) {
+    bonuses[i]->Show();
   }
 
   // Отрисовываем человечка
-  pHuman->Show();
+  human.Show();
 
   // Выводим очередной кадр на экран
   glutSwapBuffers();
 }
+
+// ========================================================================= //
 
 // Функция вызываемая каждый раз когда окно меняет размер
 void reshape(int width, int height) {
   glViewport(0, 0, width, height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluOrtho2D(LEFT_BORDER, RIGHT_BORDER, BOTTOM_BORDER, TOP_BORDER);
+  gluOrtho2D(-WINDOW_WIDTH  / 2, WINDOW_WIDTH  / 2,
+             -WINDOW_HEIGHT / 2, WINDOW_HEIGHT / 2);
   glMatrixMode(GL_MODELVIEW);
 }
 

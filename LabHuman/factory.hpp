@@ -8,6 +8,7 @@
 class Bonus : public Circle {
  public:
   virtual int GetValue() = 0;
+  virtual int type() = 0;
   virtual void Show(float R = 1.0f, float G = 1.0f, float B = 1.0f) = 0;
   virtual ~Bonus(){};
 };
@@ -15,6 +16,8 @@ class Bonus : public Circle {
 class BigBonus : public Bonus {
  public:
   BigBonus();
+  ~BigBonus();
+  int type() override;
   void Show(float R = 0.8f, float G = 0.0f, float B = 0.8f) override;
   virtual int GetValue();
 };
@@ -22,6 +25,8 @@ class BigBonus : public Bonus {
 class AvarageBonus : public Bonus {
  public:
   AvarageBonus();
+  ~AvarageBonus();
+  int type() override;
   void Show(float R = 0.5f, float G = 0.5f, float B = 1.0f) override;
   virtual int GetValue();
 };
@@ -29,13 +34,22 @@ class AvarageBonus : public Bonus {
 class SmallBonus : public Bonus {
  public:
   SmallBonus();
+  ~SmallBonus();
+  int type() override;
   void Show(float R = 0.1f, float G = 0.1f, float B = 1.0f) override;
   virtual int GetValue();
 };
 
 class KillingBonus : public Bonus {
+ protected:
+  int health;
+
  public:
   KillingBonus();
+  ~KillingBonus();
+  int type() override;
+  void takeDamage();
+  bool isDead();
   void Show(float R = 1.0f, float G = 0.0f, float B = 0.0f) override;
   virtual int GetValue();
 };

@@ -12,6 +12,10 @@
 
 BigBonus::BigBonus() { radius = 80; }
 
+BigBonus::~BigBonus() {}
+
+int BigBonus::type() { return 3; }
+
 void BigBonus::Show(float R, float G, float B) {
   int amountSegments = 360;
   int i;
@@ -40,6 +44,10 @@ int BigBonus::GetValue() { return 300; }
 /* ===================== Methods of class AvarageBonus ===================== */
 
 AvarageBonus::AvarageBonus() { radius = 50; }
+
+AvarageBonus::~AvarageBonus() {}
+
+int AvarageBonus::type() { return 2; }
 
 void AvarageBonus::Show(float R, float G, float B) {
   int amountSegments = 360;
@@ -70,6 +78,10 @@ int AvarageBonus::GetValue() { return 100; }
 
 SmallBonus::SmallBonus() { radius = 30; }
 
+SmallBonus::~SmallBonus() {}
+
+int SmallBonus::type() { return 1; }
+
 void SmallBonus::Show(float R, float G, float B) {
   int amountSegments = 360;
   int i;
@@ -97,7 +109,23 @@ int SmallBonus::GetValue() { return 50; }
 
 /* ==================== Methods of class KillingBonus ====================== */
 
-KillingBonus::KillingBonus() { radius = 60; }
+KillingBonus::KillingBonus() {
+  radius = 60;
+  health = 310;
+}
+
+KillingBonus::~KillingBonus() {}
+
+int KillingBonus::type() { return -1; }
+
+void KillingBonus::takeDamage() { health -= 1; }
+
+bool KillingBonus::isDead() {
+  if (health < 0) {
+    return true;
+  }
+  return false;
+}
 
 void KillingBonus::Show(float R, float G, float B) {
   int amountSegments = 360;

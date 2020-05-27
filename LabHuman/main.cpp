@@ -41,10 +41,10 @@
 #define WINDOW_HEIGHT 720
 
 // Определение координат для границ окна
-#define LEFT_BORDER   -WINDOW_WIDTH  / 2 + 50
-#define RIGHT_BORDER   WINDOW_WIDTH  / 2 - 50
-#define TOP_BORDER     WINDOW_HEIGHT / 2 - 50
-#define BOTTOM_BORDER -WINDOW_HEIGHT / 2 + 50
+#define LEFT_BORDER   -WINDOW_WIDTH  / 2 // + 50
+#define RIGHT_BORDER   WINDOW_WIDTH  / 2 // - 50
+#define TOP_BORDER     WINDOW_HEIGHT / 2 // - 50
+#define BOTTOM_BORDER -WINDOW_HEIGHT / 2 // + 50
 
 // Массив для отслеживания состояния каждой кнопки
 bool keyDown[256];
@@ -108,9 +108,6 @@ int main(int argc, char** argv) {
 // ============ Дисплей-функция, отвечающая за рисование в окне ============ //
 
 void display() {
-  // Очищаем кадр
-  glClear(GL_COLOR_BUFFER_BIT);
-  glLoadIdentity();
 
   // Задание зоны внутри окна
   static Line RightBorder( RIGHT_BORDER, TOP_BORDER,
@@ -121,7 +118,7 @@ void display() {
                            RIGHT_BORDER, BOTTOM_BORDER);
   static Line TopBorder(   LEFT_BORDER,  TOP_BORDER,
                            RIGHT_BORDER, TOP_BORDER);
-
+  
   // Вектор границ игровой зоны
   static std::vector<Line*> borders = {&RightBorder,  &LeftBorder,
                                        &BottomBorder, &TopBorder};
@@ -141,17 +138,26 @@ void display() {
   // Фигура которой отображается игрок
   static Human human(100, 0);
 
+  static Circle SafeZone(RIGHT_BORDER, BOTTOM_BORDER, 300);
+
+  static int SafeZoneTimer = 0;
+
   // Задание шага (в пикселях) перемещения по экрану
   static int step = 5;
 
   // Счёт
   static int score = 0;
+  static int SavedScore = 0;
 
   // Обработка кодов нажатых клавиш
   static bool movingUP    = false;
   static bool movingDOWN  = false;
   static bool movingLEFT  = false;
   static bool movingRIGHT = false;
+
+  // Очищаем кадр
+  glClear(GL_COLOR_BUFFER_BIT);
+  glLoadIdentity();  
 
   // Если шариков-бонусов меньше заданного кол-ва, то создаём новый шарик
   if (bonuses.size() < BonusesNumber) {
@@ -184,7 +190,10 @@ void display() {
     if (human.intersects(*bonuses[bonuses.size() - 1])) {
       delete bonuses[bonuses.size() - 1];
       bonuses.erase(bonuses.begin() + bonuses.size() - 1);
-    } else if (borders[0]->intersects(*bonuses[bonuses.size() - 1])) {
+    } else if (bonuses[bonuses.size() - 1]->intersects(SafeZone)) {
+      delete bonuses[bonuses.size() - 1];
+      bonuses.erase(bonuses.begin() + bonuses.size() - 1);
+    } else if(borders[0]->intersects(*bonuses[bonuses.size() - 1])) {
       delete bonuses[bonuses.size() - 1];
       bonuses.erase(bonuses.begin() + bonuses.size() - 1);
     } else if (borders[1]->intersects(*bonuses[bonuses.size() - 1])) {
@@ -203,14 +212,6 @@ void display() {
           bonuses.erase(bonuses.begin() + bonuses.size() - 1);
         }
       }
-    }
-  }
-
-  // Удаление всех бонусов по нажатию клавиши "R" ("К" рус.)
-  if (keyDown[114] || keyDown[234]) {
-    for (int i = 0; i < bonuses.size(); i++) {
-      delete bonuses[i];
-      bonuses.erase(bonuses.begin() + i);
     }
   }
 
@@ -288,28 +289,72 @@ void display() {
     RightBorder.Show();
   }
 
-  // Проверяем пересекается ли человечек с шариками-бонусов
-  for (size_t i = 0; i < bonuses.size(); i++) {
-    if(human.intersects(*bonuses[i])) {
+  for (int i = 0; i < bonuses.size(); i++) {
+    // Проверяем пересекается ли человечек с шариками-бонусов
+    if (human.intersects(*bonuses[i])) {
       // Если пересекает то увеличиваем счёт и удаляем шарик-бонус
       score += bonuses[i]->GetValue();
       std::cout << "New score = " << score << std::endl;
       delete bonuses[i];
       bonuses.erase(bonuses.begin() + i);
+      continue;
     }
+    /*if (bonuses[i]->type() == -1) {
+      (static_cast<KillingBonus*>(bonuses[i]))->takeDamage();
+      if ((static_cast<KillingBonus*>(bonuses[i]))->isDead()) {
+        delete bonuses[i];
+        bonuses.erase(bonuses.begin() + i);
+        continue;
+      }
+    }*/
   }
 
   // Отрисовываем шарики
-  for (size_t i = 0; i < bonuses.size(); i++) {
+  for (int i = 0; i < bonuses.size(); i++) {
     bonuses[i]->Show();
+  }
+
+  if (human.intersects(SafeZone)) {
+    SafeZoneTimer += 1;
+  } else {
+    SafeZoneTimer = 0;  
+  }
+
+  if (SafeZoneTimer > 150) {
+    for (int i = 0; i < bonuses.size(); i++) {
+      delete bonuses[i];
+      bonuses.erase(bonuses.begin() + i);
+    }
+    SavedScore += score;
+    std::cout << "Score saved! Saved score: " << SavedScore << std::endl;
+    score = 0;
+    SafeZoneTimer = 0;
   }
 
   // Отрисовываем человечка
   human.Show();
 
+  // Рисуем безопасную зону
+  SafeZone.Show(0.0f, 1.0f, 0.0f);
+
+  if (score < 0) {
+    std::cout << "GAME OVER!!!" << std::endl;
+    glBegin(GL_POLYGON);
+    glColor4f(0.5f, 0.1f, 0.1f, 0.0f);
+    glVertex2i(LEFT_BORDER, TOP_BORDER);
+    glVertex2i(RIGHT_BORDER, TOP_BORDER);
+    glVertex2i(RIGHT_BORDER, BOTTOM_BORDER);
+    glVertex2i(LEFT_BORDER, BOTTOM_BORDER);
+    glEnd();
+    glutSwapBuffers();
+
+    system("pause");
+    glutLeaveMainLoop();
+  }
   // Выводим очередной кадр на экран
   glutSwapBuffers();
 }
+
 
 // ========================================================================= //
 
